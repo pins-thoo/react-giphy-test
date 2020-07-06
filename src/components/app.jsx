@@ -1,50 +1,48 @@
 import React, { Component } from 'react';
+
 import SearchBar from './searchBar';
+import GifList from './gifList';
 import Gif from './gif';
-import GifList from './gif_list';
 
-const GIPHY_API_KEY = '1KMPHCBIOe3hOjJwCJQX49sRc6cM0oIm';
+const giphy = 'KsltJNEs1v3QDDVlinP6EFo2GqjFxgRR';
 
+// eslint-disable-next-line react/prefer-stateless-function
 class App extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
-      gifs: [],
-      selectedGifId: "xT9IgDEI1iZyb2wqo8"
+      giIdList: ["WuGSL4LFUMQU", "HuVCpmfKheI2Q", "u6uAu3yyDNqRq"],
+      gifIdSelected: "WuGSL4LFUMQU"
     };
+    this.fetchGiphy("star wars");
   }
 
-  search = (query) => {
-    giphy({ apiKey: GIPHY_API_KEY, https: true })
-      .search({
-        q: query,
-        rating: 'g',
-        limit: 10
-      }, (err, result) => {
-        this.setState({
-          gifs: result.data
-        });
-      });
-  }
-
-  selectGif = (id) => {
-    this.setState({
-      selectedGifId: id
+  fetchGiphy = (keyword) => {
+    giphy.search({
+      q: keyword,
+      rating: 'g',
+      limit: 10
+    }, (err, res) => {
+      this.setState({ giIdList: res.data.map(gif => gif.id) });
     });
   }
 
+  changeSelectGif = (newSelectedGifId) => {
+    this.setState({ gifIdSelected: newSelectedGifId });
+  }
+
   render() {
+    const { gifIdSelected, giIdList } = this.state;
     return (
       <div>
         <div className="left-scene">
-          <SearchBar searchFunction={this.search} />
+          <SearchBar fetchGiphy={this.fetchGiphy} />
           <div className="selected-gif">
-            <Gif id={this.state.selectedGifId} />
+            <Gif gifId={gifIdSelected} />
           </div>
         </div>
         <div className="right-scene">
-          <GifList gifs={this.state.gifs} selectGif={this.selectGif} />
+          <GifList gifIdList={giIdList} changeSelectGif={this.changeSelectGif} />
         </div>
       </div>
     );
